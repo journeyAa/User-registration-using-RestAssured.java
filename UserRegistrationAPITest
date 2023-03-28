@@ -1,0 +1,51 @@
+import org.testng.annotations.Test;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class UserRegistrationAPITest {
+  
+  @Test
+  public void testValidUserRegistration() {
+    RestAssured.baseURI = "http://your-api-url.com";
+    RestAssured.given()
+      .contentType(ContentType.JSON)
+      .body("{ \"username\": \"jane\", \"email\": \"jane@example.com\", \"password\": \"password123\" }")
+      .when()
+      .post("/register")
+      .then()
+      .statusCode(200)
+      .assertThat()
+      .body("success", equalTo(true))
+      .body("message", equalTo("User registered successfully"));
+  }
+
+  @Test
+  public void testInvalidUserRegistrationWithExistingEmail() {
+    RestAssured.baseURI = "http://your-api-url.com";
+    RestAssured.given()
+      .contentType(ContentType.JSON)
+      .body("{ \"username\": \"jane\", \"email\": \"jane@example.com\", \"password\": \"password123\" }")
+      .when()
+      .post("/register")
+      .then()
+      .statusCode(400)
+      .assertThat()
+      .body("success", equalTo(false))
+      .body("message", equalTo("Email already exists"));
+  }
+
+  @Test
+  public void testInvalidUserRegistrationWithMissingFields() {
+    RestAssured.baseURI = "http://your-api-url.com";
+    RestAssured.given()
+      .contentType(ContentType.JSON)
+      .body("{ \"username\": \"\", \"email\": \"jane@example.com\", \"password\": \"password123\" }")
+      .when()
+      .post("/register")
+      .then()
+      .statusCode(400)
+      .assertThat()
+      .body("success", equalTo(false))
+      .body("message", equalTo("Username is required"));
+  }
+}
